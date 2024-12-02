@@ -2,33 +2,66 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, time
 
-# Initialisierung des Session States für die Tabelle und das "Fenster"
-if "data" not in st.session_state:
-    st.session_state.data = pd.DataFrame(columns=[
-        "FIN", "Produktvariante", "Im Takt?", "Fehlercode", "Bemerkung", "Qualität", "Meldezeit", "Taktzeit"
-    ])
-if "show_window" not in st.session_state:
-    st.session_state.show_window = False  # Status für das Anzeigen des "Fensters"
+# Initialisierung des Session State für das Modal
+if "show_modal" not in st.session_state:
+    st.session_state.show_modal = False  # Modal-Fenster-Status
 
-# Header mit Logo und Titel
+# Funktion zum Öffnen und Schließen des Modals
+def open_modal():
+    st.session_state.show_modal = True
+
+def close_modal():
+    st.session_state.show_modal = False
+
+# Header mit Titel und Button
 st.markdown(
     """
     <div style="background-color:#2196F3; padding:10px; border-radius:5px; text-align:center;">
-        <img src="https://www.brueggen.com/fileadmin/_processed_/6/1/csm_logo_c6de901564.png" alt="Logo" style="max-width:150px;">
-        <h1 style="color:white; margin: 0;">Produktionsdokumentation</h1>
+        <h1 style="color:white; margin:0;">Produktionsdokumentation</h1>
     </div>
     """,
     unsafe_allow_html=True
 )
 
-# Button zum Öffnen des "Fensters"
+# Button: Öffnet das Modal
 if st.button("Eingabe Sattelhals"):
-    st.session_state.show_window = True  # Fenster anzeigen
+    open_modal()
 
-# Dynamisches "Fenster" mit Eingabeinformationen
-if st.session_state.show_window:
-    st.subheader("Eingabe Sattelhals")
-    with st.form("sattelhals_form"):
+# Modal-Fenster-Inhalt (simuliert)
+if st.session_state.show_modal:
+    st.markdown(
+        """
+        <div style="background-color: rgba(0,0,0,0.6); 
+                    position: fixed; 
+                    top: 0; left: 0; 
+                    width: 100%; height: 100%; 
+                    z-index: 9;">
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    st.markdown(
+        """
+        <div style="
+            position: fixed; 
+            top: 50%; left: 50%; 
+            transform: translate(-50%, -50%);
+            background-color: white; 
+            padding: 20px; 
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); 
+            z-index: 10; 
+            border-radius: 10px; 
+            text-align: center;
+            width: 50%;">
+            <h2>Eingabe Sattelhals</h2>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # Eingabeformular im "Modal"
+    with st.form("sattelhals_form", clear_on_submit=True):
         fin = st.text_input("FIN")
         produktvariante = st.selectbox("Produktvariante", ["Standard", "RoRo", "Co2"])
         im_takt = st.radio("Im Takt gefertigt?", ["Ja", "Nein"], horizontal=True)
@@ -45,33 +78,20 @@ if st.session_state.show_window:
         with col2:
             canceled = st.form_submit_button("Abbrechen")
 
-        # Aktionen bei Klick
+        # Aktionen
         if submitted:
-            new_entry = {
-                "FIN": fin,
-                "Produktvariante": produktvariante,
-                "Im Takt?": im_takt,
-                "Fehlercode": fehlercode,
-                "Bemerkung": bemerkung,
-                "Qualität": qualität,
-                "Meldezeit": str(meldezeit),
-                "Taktzeit": taktzeit,
-            }
-            st.session_state.data = pd.concat([st.session_state.data, pd.DataFrame([new_entry])], ignore_index=True)
             st.success("Eintrag hinzugefügt!")
-            st.session_state.show_window = False  # Fenster schließen
+            close_modal()
 
         if canceled:
-            st.session_state.show_window = False  # Fenster schließen
+            close_modal()
 
-# Tabelle mit den eingegebenen Daten
-st.subheader("Schichtübersicht")
-st.table(st.session_state.data)
-
-# Letzten Eintrag löschen
-if st.button("Letzten Eintrag löschen"):
-    if not st.session_state.data.empty:
-        st.session_state.data = st.session_state.data.iloc[:-1]
-        st.success("Letzter Eintrag gelöscht!")
-    else:
-        st.warning("Keine Einträge vorhanden!")
+# Footer
+st.markdown(
+    """
+    <div style="text-align: center; margin-top: 20px;">
+        <small>&copy; 2024 Produktionsdokumentation</small>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
