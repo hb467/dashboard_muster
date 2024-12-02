@@ -2,39 +2,13 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, time
 
-# Initialisierung des Session States für Daten und Modalfenster
+# Initialisierung des Session States für die Tabelle und das "Fenster"
 if "data" not in st.session_state:
     st.session_state.data = pd.DataFrame(columns=[
         "FIN", "Produktvariante", "Im Takt?", "Fehlercode", "Bemerkung", "Qualität", "Meldezeit", "Taktzeit"
     ])
 if "show_window" not in st.session_state:
-    st.session_state.show_window = False  # Status des Fensters
-
-# CSS für modales Fenster
-st.markdown("""
-    <style>
-    .modal {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background-color: white;
-        padding: 20px;
-        box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5);
-        z-index: 10;
-        border-radius: 10px;
-    }
-    .overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.6);
-        z-index: 9;
-    }
-    </style>
-""", unsafe_allow_html=True)
+    st.session_state.show_window = False  # Status für das Anzeigen des "Fensters"
 
 # Header mit Logo und Titel
 st.markdown(
@@ -47,19 +21,13 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Button zum Öffnen des Eingabefensters
+# Button zum Öffnen des "Fensters"
 if st.button("Eingabe Sattelhals"):
     st.session_state.show_window = True  # Fenster anzeigen
 
-# Simuliertes Fenster (Modal)
+# Dynamisches "Fenster" mit Eingabeinformationen
 if st.session_state.show_window:
-    st.markdown('<div class="overlay"></div>', unsafe_allow_html=True)  # Hintergrund-Overlay
-
-    # Inhalt des Fensters
-    st.markdown('<div class="modal">', unsafe_allow_html=True)
     st.subheader("Eingabe Sattelhals")
-
-    # Eingabeformular
     with st.form("sattelhals_form"):
         fin = st.text_input("FIN")
         produktvariante = st.selectbox("Produktvariante", ["Standard", "RoRo", "Co2"])
@@ -70,14 +38,14 @@ if st.session_state.show_window:
         meldezeit = st.time_input("Meldezeit", value=datetime.now().time())
         taktzeit = st.text_input("Taktzeit", value="00:25:30")
 
-        # Buttons im Fenster
+        # Buttons
         col1, col2 = st.columns(2)
         with col1:
             submitted = st.form_submit_button("Eintrag hinzufügen")
         with col2:
             canceled = st.form_submit_button("Abbrechen")
 
-        # Aktionen bei Button-Klick
+        # Aktionen bei Klick
         if submitted:
             new_entry = {
                 "FIN": fin,
@@ -95,8 +63,6 @@ if st.session_state.show_window:
 
         if canceled:
             st.session_state.show_window = False  # Fenster schließen
-
-    st.markdown('</div>', unsafe_allow_html=True)
 
 # Tabelle mit den eingegebenen Daten
 st.subheader("Schichtübersicht")
