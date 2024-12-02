@@ -2,15 +2,47 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, time
 
+# CSS-Styling für den blauen Hintergrund hinzufügen
+st.markdown(
+    """
+    <style>
+    .header {
+        background-color: #2196F3; /* Blau */
+        padding: 10px;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .header img {
+        max-width: 150px;
+    }
+    .header h1 {
+        color: white;
+        margin-left: 20px;
+        font-size: 1.5rem;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# Header mit Logo und Titel
+st.markdown(
+    """
+    <div class="header">
+        <img src="https://www.brueggen.com/fileadmin/_processed_/6/1/csm_logo_c6de901564.png" alt="Logo">
+        <h1>Produktionsdokumentation</h1>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
 # Initialisierung des Session States für die Tabelle
 if "data" not in st.session_state:
     st.session_state.data = pd.DataFrame(columns=[
         "FIN", "Produktvariante", "Im Takt?", "Fehlercode", "Bemerkung", "Qualität", "Meldezeit", "Taktzeit"
     ])
-
-# Header mit Logo und Titel
-st.image("https://www.brueggen.com/fileadmin/_processed_/6/1/csm_logo_c6de901564.png", width=300)
-st.title("Produktionsdokumentation")
 
 # Eingabeformulare für allgemeine Informationen
 with st.form("general_form"):
