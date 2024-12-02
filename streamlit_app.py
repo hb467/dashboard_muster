@@ -2,7 +2,15 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, time
 
-# CSS-Styling für den blauen Hintergrund hinzufügen
+# Initialisierung des Session States für die Tabelle und Modal-Status
+if "data" not in st.session_state:
+    st.session_state.data = pd.DataFrame(columns=[
+        "FIN", "Produktvariante", "Im Takt?", "Fehlercode", "Bemerkung", "Qualität", "Meldezeit", "Taktzeit"
+    ])
+if "show_modal" not in st.session_state:
+    st.session_state.show_modal = False  # Status für das Anzeigen des Modals
+
+# CSS-Styling für modale Eingabe und Header
 st.markdown(
     """
     <style>
@@ -38,70 +46,62 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Initialisierung des Session States für die Tabelle
-if "data" not in st.session_state:
-    st.session_state.data = pd.DataFrame(columns=[
-        "FIN", "Produktvariante", "Im Takt?", "Fehlercode", "Bemerkung", "Qualität", "Meldezeit", "Taktzeit"
-    ])
+# Allgemeine Eingaben für Datum, Zeit und Schicht
+col1, col2, col3, col4 = st.columns(4)
+with col1:
+    datum = st.date_input("Datum", value=datetime.now())
+with col2:
+    start = st.time_input("Start", value=time(14, 0))
+with col3:
+    schicht = st.selectbox("Schicht", ["Früh", "Spät", "Nacht"])
+with col4:
+    ende = st.time_input("Ende", value=time(22, 0))
 
-# Eingabeformulare für allgemeine Informationen
-with st.form("general_form"):
-    col1, col2, col3, col4 = st.columns(4)
+# Button: "Eingabe Sattelhals"
+if st.button("Eingabe Sattelhals"):
+    st.session_state.show_modal = True  # Modal anzeigen
 
-    with col1:
-        datum = st.date_input("Datum", value=datetime.now())
-    with col2:
-        start = st.time_input("Start", value=time(14, 0))
-    with col3:
-        schicht = st.selectbox("Schicht", ["Früh", "Spät", "Nacht"])
-    with col4:
-        ende = st.time_input("Ende", value=time(22, 0))
+# Modal für die Eingabe, wenn der Button geklickt wird
+if st.session_state.show_modal:
+    with st.form("sattelhals_form"):
+        st.subheader("Eingabe Sattelhals")
+        fin = st.text_input("FIN")
+        produktvariante = st.selectbox("Produktvariante", ["Standard", "RoRo", "Co2"])
+        im_takt = st.radio("Im Takt gefertigt?", ["Ja", "Nein"], horizontal=True)
+        fehlercode = st.selectbox("Fehlercode", ["Keine", "Technische Störung", "Zündfehler", "Sonstiges"])
+        bemerkung = st.text_area("Bemerkung")
+        qualität = st.radio("Qualität", ["i.O.", "e.i.O.", "n.i.O."], horizontal=True)
+        meldezeit = st.time_input("Meldezeit", value=datetime.now().time())
+        taktzeit = st.text_input("Taktzeit", value="00:25:30")
 
-    # Weitere Produktionsdaten
-    col5, col6, col7, col8 = st.columns(4)
+        # Buttons im Modal
+        col1, col2 = st.columns(2)
+        with col1:
+            submitted = st.form_submit_button("Eintrag hinzufügen")
+        with col2:
+            cancel = st.form_submit_button("Abbrechen")
 
-    with col5:
-        ausschuss = st.text_input("Ausschuss", value="0")
-    with col6:
-        schicht_soll = st.text_input("Schicht-SOLL", value="0")
-    with col7:
-        soll_aktuell = st.text_input("Soll Aktuell", value="0")
-        ist_aktuell = st.text_input("Ist Aktuell", value="0")
-    with col8:
-        rückstand = st.text_input("Rückstand", value="0")
-        direktläufer = st.text_input("Direktläufer", value="0")
+        # Eintrag hinzufügen
+        if submitted:
+            new_entry = {
+                "FIN": fin,
+                "Produktvariante": produktvariante,
+                "Im Takt?": im_takt,
+                "Fehlercode": fehlercode,
+                "Bemerkung": bemerkung,
+                "Qualität": qualität,
+                "Meldezeit": str(meldezeit),
+                "Taktzeit": taktzeit,
+            }
+            st.session_state.data = pd.concat([st.session_state.data, pd.DataFrame([new_entry])], ignore_index=True)
+            st.success("Eintrag hinzugefügt!")
+            st.session_state.show_modal = False  # Modal schließen
 
-    submitted_general = st.form_submit_button("Schichtdaten speichern")
+        # Modal schließen, wenn Abbrechen gedrückt wird
+        if cancel:
+            st.session_state.show_modal = False
 
-# Eingabeformular für spezifische Daten
-with st.form("entry_form"):
-    st.subheader("Eingabe Sattelhals")
-    fin = st.text_input("FIN")
-    produktvariante = st.selectbox("Produktvariante", ["Standard", "RoRo", "Co2"])
-    im_takt = st.radio("Im Takt gefertigt?", ["Ja", "Nein"], horizontal=True)
-    fehlercode = st.selectbox("Fehlercode", ["Keine", "Technische Störung", "Zündfehler", "Sonstiges"])
-    bemerkung = st.text_area("Bemerkung")
-    qualität = st.radio("Qualität", ["i.O.", "e.i.O.", "n.i.O."], horizontal=True)
-    meldezeit = st.time_input("Meldezeit", value=datetime.now().time())
-    taktzeit = st.text_input("Taktzeit", value="00:25:30")
-
-    submitted_entry = st.form_submit_button("Eintrag hinzufügen")
-
-    if submitted_entry:
-        new_entry = {
-            "FIN": fin,
-            "Produktvariante": produktvariante,
-            "Im Takt?": im_takt,
-            "Fehlercode": fehlercode,
-            "Bemerkung": bemerkung,
-            "Qualität": qualität,
-            "Meldezeit": str(meldezeit),
-            "Taktzeit": taktzeit,
-        }
-        st.session_state.data = pd.concat([st.session_state.data, pd.DataFrame([new_entry])], ignore_index=True)
-        st.success("Eintrag hinzugefügt!")
-
-# Tabelle mit den Daten
+# Tabelle mit den eingegebenen Daten
 st.subheader("Schichtübersicht")
 st.table(st.session_state.data)
 
