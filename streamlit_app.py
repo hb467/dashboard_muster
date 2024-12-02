@@ -2,69 +2,65 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, time
 
-# Initialisierung des Session States für die Tabelle und Modal-Status
+# Initialisierung des Session States für Daten und Modalfenster
 if "data" not in st.session_state:
     st.session_state.data = pd.DataFrame(columns=[
         "FIN", "Produktvariante", "Im Takt?", "Fehlercode", "Bemerkung", "Qualität", "Meldezeit", "Taktzeit"
     ])
-if "show_modal" not in st.session_state:
-    st.session_state.show_modal = False  # Status für das Anzeigen des Modals
+if "show_window" not in st.session_state:
+    st.session_state.show_window = False  # Status des Fensters
 
-# CSS-Styling für modale Eingabe und Header
-st.markdown(
-    """
+# CSS für modales Fenster
+st.markdown("""
     <style>
-    .header {
-        background-color: #2196F3; /* Blau */
-        padding: 10px;
-        border-radius: 5px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+    .modal {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: white;
+        padding: 20px;
+        box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5);
+        z-index: 10;
+        border-radius: 10px;
     }
-    .header img {
-        max-width: 150px;
-    }
-    .header h1 {
-        color: white;
-        margin-left: 20px;
-        font-size: 1.5rem;
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 9;
     }
     </style>
-    """,
-    unsafe_allow_html=True
-)
+""", unsafe_allow_html=True)
 
 # Header mit Logo und Titel
 st.markdown(
     """
-    <div class="header">
-        <img src="https://www.brueggen.com/fileadmin/_processed_/6/1/csm_logo_c6de901564.png" alt="Logo">
-        <h1>Produktionsdokumentation</h1>
+    <div style="background-color:#2196F3; padding:10px; border-radius:5px; text-align:center;">
+        <img src="https://www.brueggen.com/fileadmin/_processed_/6/1/csm_logo_c6de901564.png" alt="Logo" style="max-width:150px;">
+        <h1 style="color:white; margin: 0;">Produktionsdokumentation</h1>
     </div>
     """,
     unsafe_allow_html=True
 )
 
-# Allgemeine Eingaben für Datum, Zeit und Schicht
-col1, col2, col3, col4 = st.columns(4)
-with col1:
-    datum = st.date_input("Datum", value=datetime.now())
-with col2:
-    start = st.time_input("Start", value=time(14, 0))
-with col3:
-    schicht = st.selectbox("Schicht", ["Früh", "Spät", "Nacht"])
-with col4:
-    ende = st.time_input("Ende", value=time(22, 0))
-
-# Button: "Eingabe Sattelhals"
+# Button zum Öffnen des Eingabefensters
 if st.button("Eingabe Sattelhals"):
-    st.session_state.show_modal = True  # Modal anzeigen
+    st.session_state.show_window = True  # Fenster anzeigen
 
-# Modal für die Eingabe, wenn der Button geklickt wird
-if st.session_state.show_modal:
+# Simuliertes Fenster (Modal)
+if st.session_state.show_window:
+    st.markdown('<div class="overlay"></div>', unsafe_allow_html=True)  # Hintergrund-Overlay
+
+    # Inhalt des Fensters
+    st.markdown('<div class="modal">', unsafe_allow_html=True)
+    st.subheader("Eingabe Sattelhals")
+
+    # Eingabeformular
     with st.form("sattelhals_form"):
-        st.subheader("Eingabe Sattelhals")
         fin = st.text_input("FIN")
         produktvariante = st.selectbox("Produktvariante", ["Standard", "RoRo", "Co2"])
         im_takt = st.radio("Im Takt gefertigt?", ["Ja", "Nein"], horizontal=True)
@@ -74,14 +70,14 @@ if st.session_state.show_modal:
         meldezeit = st.time_input("Meldezeit", value=datetime.now().time())
         taktzeit = st.text_input("Taktzeit", value="00:25:30")
 
-        # Buttons im Modal
+        # Buttons im Fenster
         col1, col2 = st.columns(2)
         with col1:
             submitted = st.form_submit_button("Eintrag hinzufügen")
         with col2:
-            cancel = st.form_submit_button("Abbrechen")
+            canceled = st.form_submit_button("Abbrechen")
 
-        # Eintrag hinzufügen
+        # Aktionen bei Button-Klick
         if submitted:
             new_entry = {
                 "FIN": fin,
@@ -95,11 +91,12 @@ if st.session_state.show_modal:
             }
             st.session_state.data = pd.concat([st.session_state.data, pd.DataFrame([new_entry])], ignore_index=True)
             st.success("Eintrag hinzugefügt!")
-            st.session_state.show_modal = False  # Modal schließen
+            st.session_state.show_window = False  # Fenster schließen
 
-        # Modal schließen, wenn Abbrechen gedrückt wird
-        if cancel:
-            st.session_state.show_modal = False
+        if canceled:
+            st.session_state.show_window = False  # Fenster schließen
+
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # Tabelle mit den eingegebenen Daten
 st.subheader("Schichtübersicht")
