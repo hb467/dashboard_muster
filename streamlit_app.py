@@ -2,11 +2,15 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, time
 
-# Initialisierung des Session State für das Modal
+# Initialisierung des Session State für die Tabelle und das Modal
+if "data" not in st.session_state:
+    st.session_state.data = pd.DataFrame(columns=[
+        "FIN", "Produktvariante", "Im Takt?", "Fehlercode", "Bemerkung", "Qualität", "Meldezeit", "Taktzeit"
+    ])
 if "show_modal" not in st.session_state:
-    st.session_state.show_modal = False  # Modal-Fenster-Status
+    st.session_state.show_modal = False  # Status des Modals
 
-# Funktion zum Öffnen und Schließen des Modals
+# Funktionen zum Öffnen und Schließen des Modals
 def open_modal():
     st.session_state.show_modal = True
 
@@ -27,8 +31,9 @@ st.markdown(
 if st.button("Eingabe Sattelhals"):
     open_modal()
 
-# Modal-Fenster-Inhalt (simuliert)
+# Simuliertes modales Fenster (wird angezeigt, wenn show_modal = True)
 if st.session_state.show_modal:
+    # Overlay für das Fenster
     st.markdown(
         """
         <div style="background-color: rgba(0,0,0,0.6); 
@@ -41,6 +46,7 @@ if st.session_state.show_modal:
         unsafe_allow_html=True
     )
 
+    # Modales Fenster
     st.markdown(
         """
         <div style="
@@ -52,15 +58,15 @@ if st.session_state.show_modal:
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); 
             z-index: 10; 
             border-radius: 10px; 
-            text-align: center;
+            text-align: left;
             width: 50%;">
-            <h2>Eingabe Sattelhals</h2>
-        </div>
         """,
         unsafe_allow_html=True
     )
 
-    # Eingabeformular im "Modal"
+    st.subheader("Eingabe Sattelhals")
+
+    # Eingabeformular
     with st.form("sattelhals_form", clear_on_submit=True):
         fin = st.text_input("FIN")
         produktvariante = st.selectbox("Produktvariante", ["Standard", "RoRo", "Co2"])
@@ -80,18 +86,33 @@ if st.session_state.show_modal:
 
         # Aktionen
         if submitted:
+            new_entry = {
+                "FIN": fin,
+                "Produktvariante": produktvariante,
+                "Im Takt?": im_takt,
+                "Fehlercode": fehlercode,
+                "Bemerkung": bemerkung,
+                "Qualität": qualität,
+                "Meldezeit": str(meldezeit),
+                "Taktzeit": taktzeit,
+            }
+            st.session_state.data = pd.concat([st.session_state.data, pd.DataFrame([new_entry])], ignore_index=True)
             st.success("Eintrag hinzugefügt!")
             close_modal()
 
         if canceled:
             close_modal()
 
-# Footer
-st.markdown(
-    """
-    <div style="text-align: center; margin-top: 20px;">
-        <small>&copy; 2024 Produktionsdokumentation</small>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+    st.markdown("</div>", unsafe_allow_html=True)
+
+# Tabelle mit den eingegebenen Daten
+st.subheader("Schichtübersicht")
+st.table(st.session_state.data)
+
+# Letzten Eintrag löschen
+if st.button("Letzten Eintrag löschen"):
+    if not st.session_state.data.empty:
+        st.session_state.data = st.session_state.data.iloc[:-1]
+        st.success("Letzter Eintrag gelöscht!")
+    else:
+        st.warning("Keine Einträge vorhanden!")
