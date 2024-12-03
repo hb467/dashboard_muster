@@ -3,7 +3,7 @@ import pandas as pd
 from datetime import datetime, time
 
 # Erweiterte Darstellung einstellen
-st.set_page_config(layout="wide", page_title="Produktionsdokumentation", page_icon="🛠️")
+st.set_page_config(layout="wide", page_title="Produktionsdokumentation")
 
 if "data" not in st.session_state:
     st.session_state.data = pd.DataFrame(columns=[
