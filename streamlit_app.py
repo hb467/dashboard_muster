@@ -41,7 +41,7 @@ st.markdown(
 st.markdown(
     """
     <div class="header">
-        <img src="https://www.brueggen.com/fileadmin/_processed_/6/1/csm_logo_c6de901564.png" alt="Logo">
+        <logo>
         <h1>Produktionsdokumentation</h1>
     </div>
     """,
