@@ -102,7 +102,6 @@ if st.session_state.show_modal:
             st.session_state.show_modal = False
 
 # Tabelle mit den eingegebenen Daten
-st.subheader("Schichtübersicht")
 st.markdown(
     """
     <div style="text-align: center;">
@@ -110,6 +109,8 @@ st.markdown(
     </div>
     """,
     unsafe_allow_html=True
+)
+
 st.table(st.session_state.data)
 
 # Letzten Eintrag löschen
