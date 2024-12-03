@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, time
 
-# Initialisierung des Session States für die Tabelle und Modal-Status
+
 if "data" not in st.session_state:
     st.session_state.data = pd.DataFrame(columns=[
         "FIN", "Produktvariante", "Im Takt?", "Fehlercode", "Bemerkung", "Qualität", "Meldezeit", "Taktzeit"
@@ -103,6 +103,13 @@ if st.session_state.show_modal:
 
 # Tabelle mit den eingegebenen Daten
 st.subheader("Schichtübersicht")
+st.markdown(
+    """
+    <div style="text-align: center;">
+        <h3>Schichtübersicht</h3>
+    </div>
+    """,
+    unsafe_allow_html=True
 st.table(st.session_state.data)
 
 # Letzten Eintrag löschen
