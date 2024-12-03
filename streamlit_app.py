@@ -3,7 +3,7 @@ import pandas as pd
 from datetime import datetime, time
 
 # Erweiterte Darstellung einstellen
-st.set_page_config(layout="wide", page_title="Produktionsdokumentation")
+st.set_page_config(layout="wide", page_title="Produktionsdokumentation", page_icon="🛠️")
 
 if "data" not in st.session_state:
     st.session_state.data = pd.DataFrame(columns=[
@@ -41,7 +41,7 @@ st.markdown(
 st.markdown(
     """
     <div class="header">
-        <logo>
+        <img src="https://www.brueggen.com/fileadmin/_processed_/6/1/csm_logo_c6de901564.png" alt="Logo">
         <h1>Produktionsdokumentation</h1>
     </div>
     """,
@@ -59,9 +59,18 @@ with col3:
 with col4:
     ende = st.time_input("Ende", value=time(22, 0))
 
-# Button: "Eingabe Sattelhals"
-if st.button("Eingabe Sattelhals"):
-    st.session_state.show_modal = True  # Modal anzeigen
+# Buttons: "Eingabe Sattelhals" und "Letzten Eintrag löschen" in einer Zeile
+col1, col2 = st.columns(2)
+with col1:
+    if st.button("Eingabe Sattelhals"):
+        st.session_state.show_modal = True  # Modal anzeigen
+with col2:
+    if st.button("Letzten Eintrag löschen"):
+        if not st.session_state.data.empty:
+            st.session_state.data = st.session_state.data.iloc[:-1]
+            st.success("Letzter Eintrag gelöscht!")
+        else:
+            st.warning("Keine Einträge vorhanden!")
 
 # Modal für die Eingabe, wenn der Button geklickt wird
 if st.session_state.show_modal:
@@ -115,11 +124,4 @@ st.markdown(
 
 st.table(st.session_state.data)
 
-# Letzten Eintrag löschen
-if st.button("Letzten Eintrag löschen"):
-    if not st.session_state.data.empty:
-        st.session_state.data = st.session_state.data.iloc[:-1]
-        st.success("Letzter Eintrag gelöscht!")
-    else:
-        st.warning("Keine Einträge vorhanden!")
 
