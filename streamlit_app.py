@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime, time
+import locale
 
 # Erweiterte Darstellung einstellen
 st.set_page_config(layout="wide", page_title="Produktionsdokumentation", page_icon="🛠️")
@@ -49,6 +50,7 @@ st.markdown(
 )
 
 # Allgemeine Eingaben für Datum, Zeit und Schicht
+locale.setlocale(locale.LC_TIME, "de_DE.UTF-8")
 col1, col2, col3, col4 = st.columns(4)
 with col1:
     datum = st.date_input("Datum", value=datetime.now())
@@ -123,5 +125,3 @@ st.markdown(
 )
 
 st.table(st.session_state.data)
-
-
