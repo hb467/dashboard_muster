@@ -1,114 +1,122 @@
 import streamlit as st
+import pandas as pd
+from datetime import datetime, time
 
-# Bootstrap CSS einbinden
+
+if "data" not in st.session_state:
+    st.session_state.data = pd.DataFrame(columns=[
+        "FIN", "Produktvariante", "Im Takt?", "Fehlercode", "Bemerkung", "Qualität", "Meldezeit", "Taktzeit"
+    ])
+if "show_modal" not in st.session_state:
+    st.session_state.show_modal = False  # Status für das Anzeigen des Modals
+
+# CSS-Styling für modale Eingabe und Header
 st.markdown(
     """
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <style>
-        .header {
-            background-color: #2196F3;
-            padding: 20px;
-            border-radius: 10px;
-            color: white;
-            text-align: center;
-        }
-        .container {
-            background-color: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-        }
-        .table-container {
-            margin-top: 20px;
-        }
+    .header {
+        background-color: #2196F3; /* Blau */
+        padding: 5px;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .header img {
+        max-width: 150px;
+    }
+    .header h1 {
+        color: white;
+        margin-left: 20px;
+        font-size: 1.5rem;
+    }
     </style>
     """,
-    unsafe_allow_html=True,
+    unsafe_allow_html=True
 )
 
-# Kopfzeile
+# Header mit Logo und Titel
 st.markdown(
     """
     <div class="header">
+        <img src="https://www.brueggen.com/fileadmin/_processed_/6/1/csm_logo_c6de901564.png" alt="Logo">
         <h1>Produktionsdokumentation</h1>
-        <p>Wählen Sie die Arbeitsbereiche und geben Sie die Daten ein.</p>
     </div>
     """,
-    unsafe_allow_html=True,
+    unsafe_allow_html=True
 )
 
-# Eingabebereich
-st.markdown(
-    """
-    <div class="container">
-        <div class="row">
-            <div class="col-md-6">
-                <label for="startDate">Datum</label>
-                <input id="startDate" class="form-control" type="date" />
-            </div>
-            <div class="col-md-6">
-                <label for="startShift">Startzeit</label>
-                <input id="startShift" class="form-control" type="time" />
-            </div>
-        </div>
-        <div class="row mt-3">
-            <div class="col-md-6">
-                <label for="shift">Schicht</label>
-                <select id="shift" class="form-select">
-                    <option value="Früh">Früh</option>
-                    <option value="Spät">Spät</option>
-                    <option value="Nacht">Nacht</option>
-                </select>
-            </div>
-            <div class="col-md-6">
-                <label for="endShift">Endzeit</label>
-                <input id="endShift" class="form-control" type="time" />
-            </div>
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-
-# Tabellenbereich
-st.markdown(
-    """
-    <div class="container table-container">
-        <h2>Schichtübersicht</h2>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>FIN</th>
-                    <th>Produktvariante</th>
-                    <th>Im Takt?</th>
-                    <th>Fehlercode</th>
-                    <th>Bemerkung</th>
-                    <th>Qualität</th>
-                    <th>Meldezeit</th>
-                    <th>Taktzeit</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>123456</td>
-                    <td>Standard</td>
-                    <td>Ja</td>
-                    <td>Keine</td>
-                    <td>Alles OK</td>
-                    <td>i.O.</td>
-                    <td>14:00</td>
-                    <td>00:25:30</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-
-# Buttons
-col1, col2 = st.columns(2)
+# Allgemeine Eingaben für Datum, Zeit und Schicht
+col1, col2, col3, col4 = st.columns(4)
 with col1:
-    st.button("Eingabe Sattelhals")
+    datum = st.date_input("Datum", value=datetime.now())
 with col2:
-    st.button("Letzten Eintrag löschen")
+    start = st.time_input("Start", value=time(14, 0))
+with col3:
+    schicht = st.selectbox("Schicht", ["Früh", "Spät", "Nacht"])
+with col4:
+    ende = st.time_input("Ende", value=time(22, 0))
+
+# Button: "Eingabe Sattelhals"
+if st.button("Eingabe Sattelhals"):
+    st.session_state.show_modal = True  # Modal anzeigen
+
+# Modal für die Eingabe, wenn der Button geklickt wird
+if st.session_state.show_modal:
+    with st.form("sattelhals_form"):
+        st.subheader("Eingabe Sattelhals")
+        fin = st.text_input("FIN")
+        produktvariante = st.selectbox("Produktvariante", ["Standard", "RoRo", "Co2"])
+        im_takt = st.radio("Im Takt gefertigt?", ["Ja", "Nein"], horizontal=True)
+        fehlercode = st.selectbox("Fehlercode", ["Keine", "Technische Störung", "Zündfehler", "Sonstiges"])
+        bemerkung = st.text_area("Bemerkung")
+        qualität = st.radio("Qualität", ["i.O.", "e.i.O.", "n.i.O."], horizontal=True)
+        meldezeit = st.time_input("Meldezeit", value=datetime.now().time())
+        taktzeit = st.text_input("Taktzeit", value="00:25:30")
+
+        # Buttons im Modal
+        col1, col2 = st.columns(2)
+        with col1:
+            submitted = st.form_submit_button("Eintrag hinzufügen")
+        with col2:
+            cancel = st.form_submit_button("Abbrechen")
+
+        # Eintrag hinzufügen
+        if submitted:
+            new_entry = {
+                "FIN": fin,
+                "Produktvariante": produktvariante,
+                "Im Takt?": im_takt,
+                "Fehlercode": fehlercode,
+                "Bemerkung": bemerkung,
+                "Qualität": qualität,
+                "Meldezeit": str(meldezeit),
+                "Taktzeit": taktzeit,
+            }
+            st.session_state.data = pd.concat([st.session_state.data, pd.DataFrame([new_entry])], ignore_index=True)
+            st.success("Eintrag hinzugefügt!")
+            st.session_state.show_modal = False  # Modal schließen
+
+        # Modal schließen, wenn Abbrechen gedrückt wird
+        if cancel:
+            st.session_state.show_modal = False
+
+# Tabelle mit den eingegebenen Daten
+st.markdown(
+    """
+    <div style="text-align: center;">
+        <h3>Schichtübersicht</h3>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+st.table(st.session_state.data)
+
+# Letzten Eintrag löschen
+if st.button("Letzten Eintrag löschen"):
+    if not st.session_state.data.empty:
+        st.session_state.data = st.session_state.data.iloc[:-1]
+        st.success("Letzter Eintrag gelöscht!")
+    else:
+        st.warning("Keine Einträge vorhanden!")
