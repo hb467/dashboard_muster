@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, time
 
+# Erweiterte Darstellung einstellen
+st.set_page_config(layout="wide", page_title="Produktionsdokumentation", page_icon="🛠️")
 
 if "data" not in st.session_state:
     st.session_state.data = pd.DataFrame(columns=[
@@ -120,3 +122,4 @@ if st.button("Letzten Eintrag löschen"):
         st.success("Letzter Eintrag gelöscht!")
     else:
         st.warning("Keine Einträge vorhanden!")
+
