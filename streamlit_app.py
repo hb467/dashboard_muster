@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, time
 
-# Erweiterte Darstellung einstellen
+
 st.set_page_config(layout="wide", page_title="Streamlit Dashboard")
 
 if "data" not in st.session_state:
@@ -12,7 +12,6 @@ if "data" not in st.session_state:
 if "show_modal" not in st.session_state:
     st.session_state.show_modal = False  # Status für das Anzeigen des Modals
 
-# CSS-Styling für modale Eingabe und Header
 st.markdown(
     """
     <style>
@@ -37,7 +36,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Header mit Logo und Titel
 st.markdown(
     """
     <div class="header">
@@ -48,7 +46,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Allgemeine Eingaben für Datum, Zeit und Schicht
+
 col1, col2, col3, col4 = st.columns(4)
 with col1:
     datum = st.date_input("Datum", value=datetime.now())
@@ -59,7 +57,6 @@ with col3:
 with col4:
     ende = st.time_input("Ende", value=time(22, 0))
 
-# Buttons: "Eingabe Sattelhals" und "Letzten Eintrag löschen" in einer Zeile
 col1, col2 = st.columns(2)
 with col1:
     if st.button("Eingabe Sattelhals"):
@@ -72,7 +69,6 @@ with col2:
         else:
             st.warning("Keine Einträge vorhanden!")
 
-# Modal für die Eingabe, wenn der Button geklickt wird
 if st.session_state.show_modal:
     with st.form("sattelhals_form"):
         st.subheader("Eingabe Sattelhals")
@@ -92,7 +88,7 @@ if st.session_state.show_modal:
         with col2:
             cancel = st.form_submit_button("Abbrechen")
 
-        # Eintrag hinzufügen
+    
         if submitted:
             new_entry = {
                 "FIN": fin,
@@ -108,11 +104,10 @@ if st.session_state.show_modal:
             st.success("Eintrag hinzugefügt!")
             st.session_state.show_modal = False  # Modal schließen
 
-        # Modal schließen, wenn Abbrechen gedrückt wird
+       
         if cancel:
             st.session_state.show_modal = False
 
-# Tabelle mit den eingegebenen Daten
 st.markdown(
     """
     <div style="text-align: center;">
