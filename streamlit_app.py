@@ -3,7 +3,7 @@ import pandas as pd
 from datetime import datetime, time
 
 # Erweiterte Darstellung einstellen
-st.set_page_config(layout="wide", page_title="Produktionsdokumentation Sattelhaus")
+st.set_page_config(layout="wide", page_title="Streamlit Dashboard")
 
 if "data" not in st.session_state:
     st.session_state.data = pd.DataFrame(columns=[
@@ -41,8 +41,8 @@ st.markdown(
 st.markdown(
     """
     <div class="header">
-        <img src="https://www.brueggen.com/fileadmin/_processed_/6/1/csm_logo_c6de901564.png" alt="Logo">
-        <h1>Produktionsdokumentation</h1>
+        <Logo>
+        <h1>Produktionsdokumentation Sattelhaus</h1>
     </div>
     """,
     unsafe_allow_html=True
