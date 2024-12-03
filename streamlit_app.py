@@ -25,7 +25,7 @@ st.markdown(
         justify-content: center;
     }
     .header img {
-        max-width: 150px;
+        max-width: 50px;
     }
     .header h1 {
         color: white;
