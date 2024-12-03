@@ -16,7 +16,7 @@ st.markdown(
     <style>
     .header {
         background-color: #2196F3; /* Blau */
-        padding: 10px;
+        padding: 5px;
         border-radius: 5px;
         display: flex;
         align-items: center;
